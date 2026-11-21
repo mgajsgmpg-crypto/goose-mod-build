@@ -15,22 +15,32 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Unzip project
+      - name: Extract and Find Project
         run: |
-          unzip Goose-Goose-Duck-Android-Mod-2.1.zip
-          cd Goose-Goose-Duck-Android-Mod-2.1
-          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          # ลองหาไฟล์ ZIP ก่อน
+          if ls *.zip 1> /dev/null 2>&1; then
+            echo "Found ZIP file. Unzipping..."
+            unzip -q *.zip
+          else
+            echo "No ZIP file found. Assuming files are already unzipped."
+          fi
+          
+          # หาโฟลเดอร์ที่มีไฟล์ gradlew
+          PROJECT_DIR=$(find . -name "gradlew" -type f | head -n 1 | xargs dirname)
+          echo "Project directory is: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
 
       - name: Grant execute permission for gradlew
-        run: chmod +x Goose-Goose-Duck-Android-Mod-2.1/gradlew
+        run: chmod +x ${{ env.PROJECT_DIR }}/gradlew
 
       - name: Build with Gradle
         run: |
-          cd Goose-Goose-Duck-Android-Mod-2.1
+          cd ${{ env.PROJECT_DIR }}
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
           ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: Goose-Goose-Duck-Android-Mod-2.1/app/build/outputs/apk/debug/*.apk
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
