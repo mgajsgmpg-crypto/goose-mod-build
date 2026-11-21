@@ -25,10 +25,10 @@ jobs:
           echo "Project directory is: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
 
-      - name: Setup Gradle Wrapper
+      - name: Setup Gradle Wrapper 9.1.0
         run: |
           cd ${{ env.PROJECT_DIR }}
-          gradle wrapper --gradle-version 8.7
+          gradle wrapper --gradle-version 9.1.0
 
       - name: Grant execute permission for gradlew
         run: chmod +x ${{ env.PROJECT_DIR }}/gradlew
